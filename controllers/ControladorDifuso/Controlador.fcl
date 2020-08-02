@@ -1,0 +1,75 @@
+
+FUNCTION_BLOCK controladord
+
+    VAR_INPUT
+        distanciai : REAL;
+        distanciad : REAL;
+    END_VAR
+    
+    VAR_OUTPUT
+        velocidad : REAL;
+		intensidad_luz : REAL;
+    END_VAR
+    
+    FUZZIFY distanciai
+        TERM baja := gauss 75 40;
+        TERM media := gauss 250 50;
+        TERM alta := gauss 400 40;
+    END_FUZZIFY
+
+    FUZZIFY distanciad
+        TERM baja := gauss 75 40;
+        TERM media := gauss 250 50;
+        TERM alta := gauss 400 40;
+    END_FUZZIFY
+    
+    DEFUZZIFY velocidad
+        TERM baja := trape 0 0.5 1 1.5;
+        TERM media := trape 1 2 2.5 3;
+        TERM alta := trape 2.5 3.5 4 4.25;
+        
+        METHOD : COG;
+        DEFAULT:=0;
+    END_DEFUZZIFY
+	
+	DEFUZZIFY intensidad_luz
+        TERM baja := gauss 60 20;
+        TERM media := gauss 120 40;
+        TERM alta := gauss 180 20;
+        
+        METHOD : COG;
+        DEFAULT:=0;
+    END_DEFUZZIFY
+    
+    RULEBLOCK Reglas1
+        ACT : MIN;
+        AND : MIN;
+        ACCU : MAX;
+        
+        RULE R1: IF distanciai IS baja AND distanciad IS baja THEN velocidad is baja;
+        RULE R2: IF distanciai IS baja AND distanciad IS media THEN velocidad is media;
+        RULE R3: IF distanciai IS baja AND distanciad IS alta THEN velocidad is media;
+        
+		RULE R4: IF distanciai IS baja AND distanciad IS baja THEN intensidad_luz is baja;
+        RULE R5: IF distanciai IS baja AND distanciad IS media THEN intensidad_luz is media;
+        RULE R6: IF distanciai IS baja AND distanciad IS alta THEN intensidad_luz is media;
+		
+        RULE R7: IF distanciai IS media AND distanciad IS baja THEN velocidad is baja;
+        RULE R8: IF distanciai IS media AND distanciad IS media THEN velocidad is media;
+        RULE R9: IF distanciai IS media AND distanciad IS alta THEN velocidad is alta;
+        
+		RULE R10: IF distanciai IS media AND distanciad IS baja THEN intensidad_luz is baja;
+        RULE R11: IF distanciai IS media AND distanciad IS media THEN intensidad_luz is media;
+        RULE R12: IF distanciai IS media AND distanciad IS alta THEN intensidad_luz is alta;
+		
+        RULE R13: IF distanciai IS alta AND distanciad IS baja THEN velocidad is media;
+        RULE R14: IF distanciai IS alta AND distanciad IS media THEN velocidad is alta;
+        RULE R15: IF distanciai IS alta AND distanciad IS alta THEN velocidad is alta;
+		
+		RULE R16: IF distanciai IS alta AND distanciad IS baja THEN intensidad_luz is media;
+        RULE R17: IF distanciai IS alta AND distanciad IS media THEN intensidad_luz is alta;
+        RULE R18: IF distanciai IS alta AND distanciad IS alta THEN intensidad_luz is alta;
+    
+    END_RULEBLOCK
+    
+END_FUNCTION_BLOCK
