@@ -1,7 +1,7 @@
 // File:          ControladorDifuso.java
 // Date:
 // Description:
-// Author:
+// Author: Sarmiento Bryan, Zhizhpon Eduardo
 // Modifications:
 
 // You may need to add other webots classes such as
@@ -68,89 +68,52 @@ public class ControladorDifuso {
     double dii = 0.0;
     double ddd = 0.0;
     
-    // Si se requiere hacer una pausa de 1 segundo y ejecutar algun codigo
-    // robot.step(1000);        
-    
-    // Ejemplo para que robot gire hacia la izquierda
-    /*
-    motores[0].setVelocity(-3.0);
-    motores[1].setVelocity(-3.0);
-    motores[2].setVelocity(3.0);
-    motores[3].setVelocity(3.0);        
-    */
-    
     // CONTROL DIFUSO
     FIS _FIS = FIS.load("Controlador.fcl");
-    // _FIS.setVariable("distanciai",0.0);
-    // _FIS.setVariable("distanciad",0.0);    
-    // _FIS.evaluate();
     
-    // double vel = _FIS.getVariable("velocidad").getLatestDefuzzifiedValue();
     double veldd = 0.0;
     double velpd = 0.0;
     double veldi = 0.0;
     double velpi = 0.0;
     double vel = 0.0;
     int intensidad = 10;
-        
-    // System.out.println("Vel: "+vel);
     
     JDialogFis dialogoF = new JDialogFis(_FIS);
     dialogoF.setVisible(true);
-    // You should insert a getDevice-like function in order to get the
-    // instance of a device of the robot. Something like:
-    //  Motor motor = robot.getMotor("motorname");
-    //  DistanceSensor ds = robot.getDistanceSensor("dsname");
-    //  ds.enable(timeStep);
-
-    // Main loop:
-    // - perform simulation steps until Webots is stopping the controller
     
     while (robot.step(timeStep) != -1) {
-      // Read the sensors:
-      // Enter here functions to read sensor data, like:
-      //  double val = ds.getValue();
 
-      // Process sensor data here.
-
-      // Enter here functions to send actuator commands, like:
-      //  motor.setPosition(10.0);
-        
       di = sensori.getValue();
       dd = sensord.getValue();
       dii = sensorii.getValue();
       ddd = sensordd.getValue();
       
-      _FIS.setVariable("distanciai",di);
-      _FIS.setVariable("distanciad",dd);    
+      _FIS.setVariable("left_distance",di);
+      _FIS.setVariable("right_distance",dd);    
       _FIS.evaluate();
       
-      vel = _FIS.getVariable("velocidad").getLatestDefuzzifiedValue();
-      intensidad = (int) _FIS.getVariable("intensidad_luz").getLatestDefuzzifiedValue();
-      //System.out.println(di+"||"+dd+"||"+vel);
+      vel = _FIS.getVariable("velocity").getLatestDefuzzifiedValue();
+      intensidad = (int) _FIS.getVariable("light_intensity").getLatestDefuzzifiedValue();
       
       dialogoF.repaint();
       ledi.set(0);
       ledd.set(0);
       
-      // System.out.println("Intensidad:" + intensidad);
-      
       if (di <= 290 || dd <= 290) {
         if(di < 110 || dd < 110 || dii < 150 || ddd < 150){
         
-          _FIS.setVariable("distanciai", 110);
-          _FIS.setVariable("distanciad", 110);
+          _FIS.setVariable("left_distance", 110);
+          _FIS.setVariable("right_distance", 110);
+          intensidad = (int) _FIS.getVariable("light_intensity").getLatestDefuzzifiedValue();
           _FIS.evaluate();
-          vel = _FIS.getVariable("velocidad").getLatestDefuzzifiedValue();
+          vel = _FIS.getVariable("velocity").getLatestDefuzzifiedValue();
 
           veldd = vel;
           velpd = vel ;
           
           veldi = veldd  * -1.2;
           velpi = velpd  * -1.2;
-          
-          //System.out.println("Vel:" + vel);
-          //ledi.set(255);
+
           ledd.set(intensidad);
         } else if(dd > di){
             veldi = vel;
@@ -183,20 +146,13 @@ public class ControladorDifuso {
           velpd = vel;
           veldi = vel;
           velpi = vel;
-        }
-      
-      //System.out.println(di+"||"+dd+"||"+veldi+"||"+veldd);
-      
-      // for(int i=0;i<motores.length;i++){
-        // motores[i].setVelocity(vel);
-      // }
+      }
+        
       motores[0].setVelocity(veldd);
       motores[1].setVelocity(velpd);
       motores[2].setVelocity(veldi);
       motores[3].setVelocity(velpi);
       
     };
-
-    // Enter here exit cleanup code.
   }
 }

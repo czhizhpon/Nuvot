@@ -2,40 +2,40 @@
 FUNCTION_BLOCK controladord
 
     VAR_INPUT
-        distanciai : REAL;
-        distanciad : REAL;
+        left_distance : REAL;
+        right_distance : REAL;
     END_VAR
     
     VAR_OUTPUT
-        velocidad : REAL;
-		intensidad_luz : REAL;
+        velocity : REAL;
+		light_intensity : REAL;
     END_VAR
     
-    FUZZIFY distanciai
-        TERM baja := gauss 75 40;
-        TERM media := gauss 250 50;
-        TERM alta := gauss 400 40;
+    FUZZIFY left_distance
+        TERM low := gauss 75 40;
+        TERM mid := gauss 250 50;
+        TERM high:= gauss 400 40;
     END_FUZZIFY
 
-    FUZZIFY distanciad
-        TERM baja := gauss 75 40;
-        TERM media := gauss 250 50;
-        TERM alta := gauss 400 40;
+    FUZZIFY right_distance
+        TERM low := gauss 75 40;
+        TERM mid := gauss 250 50;
+        TERM high:= gauss 400 40;
     END_FUZZIFY
     
-    DEFUZZIFY velocidad
-        TERM baja := trape 0 0.5 1 1.5;
-        TERM media := trape 1 2 2.5 3;
-        TERM alta := trape 2.5 3.5 4 4.25;
+    DEFUZZIFY velocity
+        TERM low := trape 0 0.5 1 1.5;
+        TERM mid := trape 1 2 2.5 3;
+        TERM high := trape 2.5 3.5 4 4.25;
         
         METHOD : COG;
         DEFAULT:=0;
     END_DEFUZZIFY
 	
-	DEFUZZIFY intensidad_luz
-        TERM baja := gauss 60 20;
-        TERM media := gauss 120 40;
-        TERM alta := gauss 180 20;
+	DEFUZZIFY light_intensity
+        TERM low := gauss 60 20;
+        TERM mid := gauss 120 40;
+        TERM high := gauss 180 20;
         
         METHOD : COG;
         DEFAULT:=0;
@@ -46,29 +46,29 @@ FUNCTION_BLOCK controladord
         AND : MIN;
         ACCU : MAX;
         
-        RULE R1: IF distanciai IS baja AND distanciad IS baja THEN velocidad is baja;
-        RULE R2: IF distanciai IS baja AND distanciad IS media THEN velocidad is media;
-        RULE R3: IF distanciai IS baja AND distanciad IS alta THEN velocidad is media;
+        RULE R1: IF left_distance IS low AND right_distance IS low THEN velocity is low;
+        RULE R2: IF left_distance IS low AND right_distance IS mid THEN velocity is mid;
+        RULE R3: IF left_distance IS low AND right_distance IS high THEN velocity is mid;
         
-		RULE R4: IF distanciai IS baja AND distanciad IS baja THEN intensidad_luz is baja;
-        RULE R5: IF distanciai IS baja AND distanciad IS media THEN intensidad_luz is media;
-        RULE R6: IF distanciai IS baja AND distanciad IS alta THEN intensidad_luz is media;
+		RULE R4: IF left_distance IS low AND right_distance IS low THEN light_intensity is low;
+        RULE R5: IF left_distance IS low AND right_distance IS mid THEN light_intensity is mid;
+        RULE R6: IF left_distance IS low AND right_distance IS high THEN light_intensity is mid;
 		
-        RULE R7: IF distanciai IS media AND distanciad IS baja THEN velocidad is baja;
-        RULE R8: IF distanciai IS media AND distanciad IS media THEN velocidad is media;
-        RULE R9: IF distanciai IS media AND distanciad IS alta THEN velocidad is alta;
+        RULE R7: IF left_distance IS mid AND right_distance IS low THEN velocity is low;
+        RULE R8: IF left_distance IS mid AND right_distance IS mid THEN velocity is mid;
+        RULE R9: IF left_distance IS mid AND right_distance IS high THEN velocity is high;
         
-		RULE R10: IF distanciai IS media AND distanciad IS baja THEN intensidad_luz is baja;
-        RULE R11: IF distanciai IS media AND distanciad IS media THEN intensidad_luz is media;
-        RULE R12: IF distanciai IS media AND distanciad IS alta THEN intensidad_luz is alta;
+		RULE R10: IF left_distance IS mid AND right_distance IS low THEN light_intensity is low;
+        RULE R11: IF left_distance IS mid AND right_distance IS mid THEN light_intensity is mid;
+        RULE R12: IF left_distance IS mid AND right_distance IS high THEN light_intensity is high;
 		
-        RULE R13: IF distanciai IS alta AND distanciad IS baja THEN velocidad is media;
-        RULE R14: IF distanciai IS alta AND distanciad IS media THEN velocidad is alta;
-        RULE R15: IF distanciai IS alta AND distanciad IS alta THEN velocidad is alta;
+        RULE R13: IF left_distance IS high AND right_distance IS low THEN velocity is mid;
+        RULE R14: IF left_distance IS high AND right_distance IS mid THEN velocity is high;
+        RULE R15: IF left_distance IS high AND right_distance IS high THEN velocity is high;
 		
-		RULE R16: IF distanciai IS alta AND distanciad IS baja THEN intensidad_luz is media;
-        RULE R17: IF distanciai IS alta AND distanciad IS media THEN intensidad_luz is alta;
-        RULE R18: IF distanciai IS alta AND distanciad IS alta THEN intensidad_luz is alta;
+		RULE R16: IF left_distance IS high AND right_distance IS low THEN light_intensity is mid;
+        RULE R17: IF left_distance IS high AND right_distance IS mid THEN light_intensity is high;
+        RULE R18: IF left_distance IS high AND right_distance IS high THEN light_intensity is high;
     
     END_RULEBLOCK
     
